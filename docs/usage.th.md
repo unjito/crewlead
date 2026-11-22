@@ -9,7 +9,7 @@
  คุณ                  AI crew                                  คุณ
  ───                  ───────                                  ───
  "อยากได้ X"  ─►  Intake เขียน issue
-                  Planner เขียนแผน           ─►  /go  (คุณอนุมัติแผน)
+                  Planner เขียนแผน           ─►  ai:approved  (คุณอนุมัติแผน)
                   Implementor ลงมือทำ เปิด draft PR
                   CI + guard ตรวจ
                   Reviewer (ตาใหม่) ตรวจซ้ำ               ─►  คุณ merge
@@ -95,7 +95,7 @@ crewlead init --labels
 
 ```
 /issue-new สร้างแอป Next.js มีหน้า login และตั้งค่าเทสต์ไว้
-/issue-plan 1      →  อ่านแผน แล้ว comment /go ใน issue #1
+/issue-plan 1      →  อ่านแผน แล้วติด label ai:approved ที่ issue #1
 /issue-plan 1 go   →  ได้ draft PR ที่มีโครงโปรเจกต์
 ```
 
@@ -111,15 +111,15 @@ crewlead init --labels
 |---|---|---|
 | ขอของใหม่ | `/issue-new ปุ่ม export ควรมีวันที่ด้วย` | Intake ถามคุณสองสามข้อ แล้วเขียน issue ให้ชัด (หลังคุณตกลง) |
 | ให้วางแผน | `/issue-plan 12` | Planner อ่านโค้ด แล้วโพสต์แผนใน issue #12 |
-| อนุมัติแผน | comment `/go` ใน issue #12 | comment นี้คือการอนุมัติ และเก็บไว้เป็นหลักฐาน นับเฉพาะ `/go` จากคนที่มีสิทธิ์ write ใน repo |
+| อนุมัติแผน | ติด label `ai:approved` ที่ issue #12 (หรือ comment `/go`) | นี่คือการอนุมัติ timeline ของ issue บันทึกว่าใครติด label และเมื่อไร planner โพสต์บันทึกการอนุมัติ และ PR ลิงก์ไปที่บันทึกนั้น นับเฉพาะการอนุมัติจากคนที่มีสิทธิ์ write ใน repo |
 | ให้ลงมือทำ | `/issue-plan 12 go` | Implementor ทำตามแผนพร้อมเทสต์ แล้วเปิด **draft PR** |
 | ให้ตรวจ | `/change-review 34` | Reviewer ที่**เริ่มอ่านใหม่**ตรวจ PR #34 เทียบกับแผน |
 | ดูว่ามีอะไรรออยู่ | `/whats-next` | อะไรรอคุณ, AI ทำอะไรอยู่, อะไรอยู่ในคิว |
 | รับงาน | คุณ merge PR เอง | agent ไม่ merge เด็ดขาด |
 
-bug เล็ก ๆ ที่คนในทีม (มีสิทธิ์ write) เปิด issue ไม่ต้องรอ `/go`: planner วางแผนแล้ว
+bug เล็ก ๆ ที่คนในทีม (มีสิทธิ์ write) เปิด issue ไม่ต้องรอการอนุมัติ: planner วางแผนแล้ว
 implementor ลงมือได้เลย แต่คุณยังเป็นคนตรวจและ merge ส่วน bug ที่คนนอกแจ้ง
-ต้องรอ `/go` จากคุณก่อน
+ต้องรอคุณอนุมัติก่อน
 
 ## 4. ดูสถานะจาก label
 
@@ -128,7 +128,8 @@ label ของ issue บอกเสมอว่างานอยู่ตร�
 | Label | ความหมาย | ใครต้องทำ |
 |---|---|---|
 | `ai` | อยู่ในคิว | AI |
-| `ai:awaiting-approval` | แผนพร้อมให้อ่าน | **คุณ**: `/go` หรือ comment |
+| `ai:awaiting-approval` | แผนพร้อมให้อ่าน | **คุณ**: ติด `ai:approved` (หรือ comment `/go`) หรือ comment ถามกลับ |
+| `ai:approved` | คุณอนุมัติแผนแล้ว | AI: เริ่มลงมือ ติดได้เฉพาะคน และจะถูกถอดออกเมื่อแก้แผนใหม่ |
 | `ai:implementing` | กำลังทำ | AI |
 | `ai:in-review` | เปิด draft PR แล้ว CI กับ reviewer กำลังตรวจ | AI |
 | `ai:ready` | ตรวจผ่านแล้ว | **คุณ**: merge |
@@ -155,9 +156,9 @@ solo: true        # ทำคนเดียว? ให้อนุมัติ�
 - **guard job ใน CI:** PR จะไม่ผ่านถ้าเทสต์ถูกลบหรือถูก skip หรือมีการแก้
   migration ที่ commit ไปแล้ว ยกเว้นคนติด label `allow-*` ให้
 - **คนนอกสั่ง crew ไม่ได้:** บน repo สาธารณะใครก็ comment ได้ agent จึงไม่นับ
-  `/go` จากคนที่ไม่มีสิทธิ์ write, ถือว่าข้อความใน issue และ comment เป็นข้อมูล
-  ไม่ใช่คำสั่ง และไม่ติด label `allow-*` เอง
-- **protected paths:** การแก้ไฟล์กลุ่มนี้ต้องได้ `/go` จากคนใน `approvers`
+  การอนุมัติ (label หรือ `/go`) จากคนที่ไม่มีสิทธิ์ write, ถือว่าข้อความใน issue และ comment เป็นข้อมูล
+  ไม่ใช่คำสั่ง และไม่ติด label `ai:approved` หรือ `allow-*` เอง
+- **protected paths:** การแก้ไฟล์กลุ่มนี้ต้องได้การอนุมัติจากคนใน `approvers`
   ที่ไม่ใช่คนที่กำลังทำงานนั้นอยู่
 
 ## 7. ปรับให้เป็นของคุณ

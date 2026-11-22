@@ -1,7 +1,7 @@
 <!-- Managed by crewlead — edit it in the crewlead repo, not here. -->
 Closes #
 
-**Approved:** <!-- link to the /go comment on the issue, or "A3 — no approval needed" -->
+**Approved:** <!-- link to the approval on the issue (the crewlead:approval record or the /go comment), or "A3 — no approval needed" -->
 
 ## What and why
 <!-- One or two sentences. Bug: the root cause. -->

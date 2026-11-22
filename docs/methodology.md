@@ -28,24 +28,24 @@ If this document disagrees with those rule files, the rule files win; fix this d
 | Lane | Spec | Autonomy |
 |---|---|---|
 | Bug | Write a test that reproduces the bug first (it must fail) | A3: works on its own up to a draft PR |
-| Feature S/M | Mini-spec in the issue | A2: waits for `/go` |
-| Story (BMAD) | AC from the story file | A2: waits for `/go` |
+| Feature S/M | Mini-spec in the issue | A2: waits for approval |
+| Story (BMAD) | AC from the story file | A2: waits for approval |
 | Large | — | A1: analysis only, then you plan it with BMAD |
 
 Whatever the lane, a change that touches a **protected path** is capped at A2 and gets the `needs-lead-review` label.
 A4 (merging on its own) is **never allowed**.
 
 **Approval** (simple, but traceable):
-- Approval = a `/go` comment on the issue, after the latest plan, and the PR links to that comment. Typing "yes" or "go" in a chat is not an approval; it only allows a push, a post or opening a PR
-- Work that does **not** touch a protected path: anyone can `/go`, including the dev doing the work
-- Work that **does** touch a protected path: the `/go`, and the PR approval before merge, must come from someone in `approvers` (`.ai/project.yml`) who is **neither** the dev doing the work **nor** the person who opened the issue. If nobody qualifies, the agent stops and asks
+- Approval = the `ai:approved` label added by a person, or a `/go` comment, on the issue after the latest plan. The issue's timeline shows who added the label and when; the planner posts an approval record, and the PR links to it (or to the `/go`). A re-plan removes the label, so the person approves again. Agents never add it. Typing "yes" or "go" in a chat is not an approval; it only allows a push, a post or opening a PR
+- Work that does **not** touch a protected path: anyone with write access can approve, including the dev doing the work
+- Work that **does** touch a protected path: the approval, and the PR approval before merge, must come from someone in `approvers` (`.ai/project.yml`) who is **neither** the dev doing the work **nor** the person who opened the issue. If nobody qualifies, the agent stops and asks
 
 ## 4. Who does what
 
 | Role | Who | Where |
 |---|---|---|
 | Stakeholder | The business owner | Sends requests through you |
-| PM / Lead / QA | **You** | Approve issues, approve plans (`/go`), merge |
+| PM / Lead / QA | **You** | Approve issues, approve plans (`ai:approved` or `/go`), merge |
 | Setup | Any agent | `project-setup`, once after install or when the code has changed a lot |
 | Intake (SA/PM) | `agents.planner` (default Claude) | `issue-new`, on your machine |
 | Planner | `agents.planner` (default Claude) | `issue-plan <n>` |
@@ -70,7 +70,7 @@ is just a short message saying "look here". Set it with `handoff` in `.ai/projec
 ① INTAKE     You + Intake agent → Issue (passes DoR) → [label: ai]
 ② PLAN       Planner: research → Implementation Plan (comment)
              ├ Bug S, touches nothing important → ③ straight away
-             ├ Everything else → ai:awaiting-approval → you review → /go → ③
+             ├ Everything else → ai:awaiting-approval → you review → ai:approved → ③
              └ Large or ambiguous → ai:blocked → you decide
 ③ IMPLEMENT  Implementor in worktree ai/<n>-<slug>, one step at a time (test fails first)
              Plan is wrong → stop and report to the planner (never guess) → Plan v2
@@ -165,7 +165,7 @@ The source lives in one place on your machine. If you change it, run `crewlead u
 **Platform (GitHub / GitLab)**: the installer works it out, in this order, from `platform` in `.ai/project.yml` → the remote's host → the CI files in the repo.
 If it cannot tell, it asks (or pass `--platform gitlab` yourself). On GitLab you get templates in `.gitlab/`
 and a guard file to `include:` in `.gitlab-ci.yml` (the installer does not edit the team's CI; it only tells you the line to add).
-Agents use `glab` as listed in the table in `AGENTS.md` §11, and approve with `/go`, `go` or `APPROVED`.
+Agents use `glab` as listed in the table in `AGENTS.md` §11, and approve with the `ai:approved` label, or a comment `/go`, `go` or `APPROVED`.
 **Labels**: if the team's board already has status labels (e.g. `Currently reviewing`), map them by name in `project.yml` → `labels`,
 and the installer will not create or change those labels (`project-setup` reads the existing labels and suggests a mapping).
 

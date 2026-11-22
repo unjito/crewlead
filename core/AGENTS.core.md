@@ -54,7 +54,7 @@ the issue, the plan, the branch and the PR.
 - `git stash`, `git add -A` / `git add .`, or `git commit -a`. Stage the paths you
   changed by name. Changes you did not make in the working tree are not yours:
   leave them, or stop and ask.
-- Do what only a person may do: write an approval (`/go`), add or remove a
+- Do what only a person may do: write an approval (`/go`, or add `ai:approved`), add or remove a
   waiver label (`allow-immutable-edit`, `allow-test-skip`,
   `allow-test-removal`), or remove `needs-lead-review`. A guard failure you
   cannot fix within the plan is a stop (§7), never a label.
