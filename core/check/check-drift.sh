@@ -70,6 +70,8 @@ if (( ${#files[@]} )); then
     path="${tok#./}"; path="${path%/}"
     top="${path%%/*}"
     [[ -e "$top" ]] || continue          # an example, or another repo's path
+    # In a worktree .git is a file: ask git where a .git/… path really is.
+    [[ "$path" == .git/* ]] && path="$(git rev-parse --git-path "${path#.git/}")"
     [[ -e "$path" ]] || report "$file:$line: \`$tok\` does not exist"
   done < <(tokens "${files[@]}")
 fi

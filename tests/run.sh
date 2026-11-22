@@ -309,6 +309,10 @@ check "default branch from origin/HEAD" "grep -qx 'default_branch: develop' <<<\
 echo "check-drift.sh"
 D="$R4"
 (cd "$D" && .ai/flow/check-drift.sh >/dev/null) && ok "clean install has no drift" || bad "clean install has no drift"
+W="$TMP/wt-main"; git init -q "$W"; "$FLOW/bin/crewlead" init "$W" >/dev/null
+git -C "$W" add -A >/dev/null; git -C "$W" -c user.name=t -c user.email=t@example.com commit -qm init
+git -C "$W" worktree add -q "$TMP/wt-other" -b other
+(cd "$TMP/wt-other" && .ai/flow/check-drift.sh >/dev/null) && ok "drift is clean inside a worktree (.git is a file)" || bad "drift is clean inside a worktree (.git is a file)"
 echo 'See `.ai/flow/agents/gone.md` and `src/example.ts` and `.ai/steering/<file>.md`.' >> "$D/.ai/steering/tech.md"
 out=$(cd "$D" && .ai/flow/check-drift.sh 2>&1 || true)
 check "drift finds a missing path" "grep -q 'gone.md. does not exist' <<<\"\$out\""
