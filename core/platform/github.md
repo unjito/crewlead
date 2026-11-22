@@ -13,6 +13,7 @@ for `gh` and apply as they are. A change request is a **pull request (PR)**.
 | Comment on an issue | `gh issue comment <n> --body-file <f>` |
 | Edit a comment | `gh api -X PATCH repos/{owner}/{repo}/issues/comments/<id> -F body=@<f>` (`<id>`: the number after `#issuecomment-` in its URL) |
 | Move labels | `gh issue edit <n> --add-label <a> --remove-label <b>` |
+| Who added a label, and when | `gh api --paginate repos/{owner}/{repo}/issues/<n>/timeline --jq '.[] \| select(.event == "labeled" and .label.name == "<label>") \| {actor: .actor.login, created_at}'` (latest last) |
 | Can a user see the repo | `gh api repos/{owner}/{repo}/collaborators/<user>` (204 = yes) |
 | Can a user approve (write access) | `gh api repos/{owner}/{repo}/collaborators/<user>/permission --jq .permission` → `admin` or `write` = yes; anything else, or an error = no |
 | Change request for a branch | `gh pr list --head <branch>` |

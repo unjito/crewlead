@@ -22,10 +22,13 @@ Read the latest `<!-- crewlead:plan -->` comment, `AGENTS.md` and
 `.ai/project.yml`. If the issue links a spec file (a BMAD story or a
 document in `specs.docs`), read it.
 
-Check the approval (rules.md §4 Approvals): an A2 PR links a `/go` comment
-that exists, came after the latest plan or `plan-change` comment, was written by someone with write
-access (rules.md §11, *Can a user approve*) and — on a protected path — by an
-allowed approver. A PR that claims A3 needs an issue written by someone with
+Check the approval (rules.md §4 Approvals): an A2 PR links a `/go` comment or
+a `<!-- crewlead:approval -->` record. Check the approval itself, never the
+record's text: the `/go` comment, or the issue's timeline (rules.md §11, *Who
+added a label*) showing who added `ai:approved` and when. It came after the
+latest plan or `plan-change` comment, from someone with write access (rules.md
+§11, *Can a user approve*) and — on a protected path — from an allowed
+approver. A PR that claims A3 needs an issue written by someone with
 write access. Missing or wrong → **must-fix**: the work was built
 without a valid approval.
 

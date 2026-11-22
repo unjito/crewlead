@@ -27,24 +27,24 @@
 | Lane | Spec | ความอิสระ |
 |---|---|---|
 | Bug | เขียนเทสต์ที่ทำให้ bug เกิดซ้ำก่อน (ต้อง fail) | A3: ทำเองจนได้ draft PR |
-| Feature S/M | mini-spec ใน issue | A2: ต้องรอ `/go` |
-| Story (BMAD) | AC จาก story file | A2: ต้องรอ `/go` |
+| Feature S/M | mini-spec ใน issue | A2: ต้องรอการอนุมัติ |
+| Story (BMAD) | AC จาก story file | A2: ต้องรอการอนุมัติ |
 | Large | — | A1: วิเคราะห์อย่างเดียว แล้วคนวางแผนด้วย BMAD |
 
 ถ้าแตะ **protected path** ไม่ว่างานแบบไหน ความอิสระสูงสุดคือ A2 และต้องติด `needs-lead-review`
 ส่วน A4 (merge เอง) **ไม่อนุญาตเด็ดขาด**
 
 **การอนุมัติ** (เรียบง่าย แต่ย้อนตรวจได้):
-- อนุมัติ = คอมเมนต์ `/go` บน issue หลังแผนล่าสุด และลิงก์คอมเมนต์นั้นอยู่ใน PR ส่วนการพิมพ์ "yes" หรือ "go" ในแชตไม่นับเป็นการอนุมัติ ใช้ได้แค่อนุญาตให้ push, โพสต์ หรือเปิด PR
-- งานที่**ไม่แตะ** protected path: ใครก็ `/go` ได้ รวมถึง dev ที่ทำงานนั้นเอง
-- งานที่**แตะ** protected path: ต้องเป็นคนใน `approvers` (`.ai/project.yml`) ที่**ไม่ใช่** dev ที่ทำงานนั้น และ**ไม่ใช่**คนเปิด issue ทั้งตอน `/go` และตอน approve PR ก่อน merge ถ้าไม่มีใครเข้าเงื่อนไข agent จะหยุดถาม
+- อนุมัติ = คนติด label `ai:approved` หรือคอมเมนต์ `/go` บน issue หลังแผนล่าสุด timeline ของ issue บอกว่าใครติด label และเมื่อไร planner โพสต์บันทึกการอนุมัติ และ PR ลิงก์ไปที่บันทึกนั้น (หรือที่ `/go`) เมื่อแก้แผนใหม่ label จะถูกถอด คนต้องอนุมัติอีกครั้ง agent ไม่ติด label นี้เอง ส่วนการพิมพ์ "yes" หรือ "go" ในแชตไม่นับเป็นการอนุมัติ ใช้ได้แค่อนุญาตให้ push, โพสต์ หรือเปิด PR
+- งานที่**ไม่แตะ** protected path: ใครที่มีสิทธิ์ write ก็อนุมัติได้ รวมถึง dev ที่ทำงานนั้นเอง
+- งานที่**แตะ** protected path: ต้องเป็นคนใน `approvers` (`.ai/project.yml`) ที่**ไม่ใช่** dev ที่ทำงานนั้น และ**ไม่ใช่**คนเปิด issue ทั้งตอนอนุมัติแผน และตอน approve PR ก่อน merge ถ้าไม่มีใครเข้าเงื่อนไข agent จะหยุดถาม
 
 ## 4. ใครทำหน้าที่อะไร
 
 | หน้าที่ | ใคร | ที่ไหน |
 |---|---|---|
 | Stakeholder | เจ้าของธุรกิจ | ส่งคำขอผ่านคุณ |
-| PM / Lead / QA | **คุณ** | อนุมัติ issue, อนุมัติแผน (`/go`), merge |
+| PM / Lead / QA | **คุณ** | อนุมัติ issue, อนุมัติแผน (`ai:approved` หรือ `/go`), merge |
 | Setup | agent ไหนก็ได้ | `project-setup` ครั้งแรกหลัง install หรือเมื่อโค้ดเปลี่ยนไปมาก |
 | Intake (SA/PM) | `agents.planner` (ค่าตั้งต้น Claude) | `issue-new` บนเครื่อง |
 | Planner | `agents.planner` (ค่าตั้งต้น Claude) | `issue-plan <n>` |
@@ -69,7 +69,7 @@ Cursor ใช้ `/issue-plan 12`, Codex ใช้ `$issue-plan 12` (ตาร�
 ① INTAKE     คุณ + Intake agent → Issue (ผ่าน DoR) → [label: ai]
 ② PLAN       Planner: research → Implementation Plan (comment)
              ├ Bug S, ไม่แตะส่วนสำคัญ → ③ ทันที
-             ├ อื่นๆ → ai:awaiting-approval → คุณตรวจ → /go → ③
+             ├ อื่นๆ → ai:awaiting-approval → คุณตรวจ → ai:approved → ③
              └ ใหญ่หรือกำกวม → ai:blocked → คุณตัดสิน
 ③ IMPLEMENT  implementor ใน worktree ai/<n>-<slug>, ทำทีละ step (เทสต์ fail ก่อน)
              แผนผิด → หยุดแล้วรายงาน planner (ห้ามเดาเอง) → Plan v2
@@ -164,7 +164,7 @@ crewlead check     # ดูอย่างเดียว: ติดตั้ง
 **แพลตฟอร์ม (GitHub / GitLab)**: installer อ่านก่อน จาก `platform` ใน `.ai/project.yml` → host ของ remote → ไฟล์ CI ใน repo
 ถ้าอ่านไม่ออกจะถามว่าใช้อะไร (หรือสั่งเองด้วย `--platform gitlab`) บน GitLab จะได้ template ใน `.gitlab/`
 และไฟล์ guard สำหรับ `include:` ใน `.gitlab-ci.yml` (installer ไม่แก้ CI ของทีม แค่บอกบรรทัดที่ต้องเพิ่ม)
-agent ใช้ `glab` ตามตารางใน `AGENTS.md` §11 และอนุมัติด้วย `/go`, `go` หรือ `APPROVED`
+agent ใช้ `glab` ตามตารางใน `AGENTS.md` §11 และอนุมัติด้วย label `ai:approved` หรือคอมเมนต์ `/go`, `go` หรือ `APPROVED`
 **label**: ถ้า board ของทีมมี label สถานะอยู่แล้ว (เช่น `Currently reviewing`) ตั้งชื่อแทนได้ใน `project.yml` → `labels`
 แล้ว installer จะไม่สร้างหรือแก้ label นั้น (`project-setup` อ่าน label ที่มีอยู่แล้วเสนอให้)
 

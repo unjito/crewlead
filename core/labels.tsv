@@ -1,5 +1,6 @@
 queued	ai	1D76DB	Queued for the AI planner
-awaiting_approval	ai:awaiting-approval	FBCA04	Plan posted — waiting for the person's /go
+awaiting_approval	ai:awaiting-approval	FBCA04	Plan posted — waiting for the person's approval
+approved	ai:approved	0E8A16	A person approved the plan — only a person adds this
 implementing	ai:implementing	0E8A16	Implementor is building
 in_review	ai:in-review	5319E7	Draft PR open — CI and reviewer running
 ready	ai:ready	0E8A16	Reviewer passed — waiting for the person to merge

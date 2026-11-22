@@ -16,6 +16,7 @@ same in an MR description. GitLab issue numbers are the project's `iid`.
 | Comment on an issue | `gh issue comment` | `glab issue note <n> --message "$(cat <f>)"` |
 | Edit a comment | `gh api -X PATCH …/issues/comments/<id>` | `glab api --method PUT "projects/:id/issues/<n>/notes/<note_id>" -F body=@<f>` |
 | Move labels | `gh issue edit --add-label/--remove-label` | `glab issue update <n> --label <a> --unlabel <b>` |
+| Who added a label, and when | `gh api …/issues/<n>/timeline` | `glab api "projects/:id/issues/<n>/resource_label_events?per_page=100"` → entries with `.action == "add"` and `.label.name == "<label>"`: `.user.username`, `.created_at` |
 | Can a user see the project | `gh api …/collaborators/<user>` | `glab api "projects/:id/members/all?query=<user>"` (non-empty = yes) |
 | Can a user approve (write access) | `gh api …/collaborators/<user>/permission` | `glab api "projects/:id/members/all?query=<user>"` → the entry whose `.username` is exactly `<user>` has `.access_level` ≥ 30 (Developer) = yes; no such entry = no |
 | Change request for a branch | `gh pr list --head` | `glab mr list --source-branch <branch>` |
@@ -27,9 +28,10 @@ same in an MR description. GitLab issue numbers are the project's `iid`.
 | Mark ready / request a reviewer | `gh pr ready` · `gh pr edit --add-reviewer` | `glab mr update <mr> --ready` · `glab mr update <mr> --reviewer <user>` |
 | Create a label | `gh label create` | `glab label create --name "<name>" --color "#<hex>" --description "<d>"` |
 
-**Approvals on GitLab.** A line starting with `/` is a GitLab quick action, so
-an approval comment is `/go` **or** a comment whose first line is `go` or
-`APPROVED` — accept any of them (rules.md §4 Approvals). GitLab's own MR
+**Approvals on GitLab.** The `ai:approved` label works as on GitHub (or the
+project's name for it, e.g. `AI: approved`). A line starting with `/` is a
+GitLab quick action, so an approval comment is `/go` **or** a comment whose
+first line is `go` or `APPROVED` — accept any of them (rules.md §4 Approvals). GitLab's own MR
 approval rules are not required; the comment is the evidence.
 
 Templates: `.gitlab/issue_templates/`, `.gitlab/merge_request_templates/Default.md`.

@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased
+- A person can now approve a plan with the **`ai:approved` label** instead of
+  a `/go` comment (asked for on a real project, to match a GitLab crew that
+  already approves with a label). `/go` still works. rules.md §4: the label
+  counts only when it was added after the latest plan or `plan-change`
+  comment, by someone allowed to approve; who added it and when comes from
+  the issue's timeline (§11 *Who added a label*, GitHub and GitLab), never
+  from a comment. On handoff the planner posts a `<!-- crewlead:approval -->`
+  record (who, when, how, plan version) and the PR links it; the reviewer
+  checks the timeline, not the record. A re-plan removes the label, so the
+  person approves again.
+- Agents never add the approval label: the settings deny `gh … --add-label
+  …ai:approved…` and `glab … --label …ai:approved…`, also under a renamed
+  label (`labels.approved` in `.ai/project.yml`, e.g. `AI: approved`). The
+  planner removes the label in a command of its own for the same reason.
+- New label `ai:approved` in `labels.tsv`; `crewlead update --labels` creates
+  it. New projects get `approved: ai:approved` under `labels`; existing
+  projects use the default name without a change.
+
 ## 0.5.5
 - An issue's worktree is now created inside the project, at
   `.worktrees/ai-<n>`, instead of next to it at `../<repo>-ai-<n>` (seen on a

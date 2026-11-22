@@ -21,8 +21,8 @@ git worktree list --porcelain
 For each worktree other than the main checkout, on an `ai/<n>-<slug>` branch: look up its PR in any state and its head commit (rules.md §11, *Its state and head commit*), `git -C <worktree> status --porcelain` and `git -C <worktree> rev-parse HEAD`. Apply the *Safe to remove* test in rules.md §9 *Worktree lifecycle*.
 
 Report in the person's language, in this order:
-1. **Needs you**: `ai:blocked` (with the question), `ai:awaiting-approval` (plan to check, approve with a `/go` comment on the issue; with `needs-lead-review`, name the `approvers` who may), `ai:ready` (check and merge), owner/ops tasks.
-2. **AI working**: implementing / in review, with PR and CI state.
+1. **Needs you**: `ai:blocked` (with the question), `ai:awaiting-approval` without `ai:approved` (plan to check, approve with the `ai:approved` label or a `/go` comment on the issue; with `needs-lead-review`, name the `approvers` who may), `ai:ready` (check and merge), owner/ops tasks.
+2. **AI working**: approved and waiting for the planner to hand off (`ai:approved`: run `issue-plan <n>`), implementing / in review, with PR and CI state.
 3. **Queued**: `ai`.
 4. **Loose ends**: worktrees whose PR is merged or closed.
    - **Safe to remove**: each with its path, branch, PR and the commands from rules.md §9 (unlink a symlinked `node_modules`, `git worktree remove`, `git branch -d`, or `-D` after a squash merge), ready to paste in the main checkout.

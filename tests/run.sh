@@ -79,6 +79,13 @@ check "settings keep existing allow" "jq -e '.permissions.allow|index(\"Bash(ls:
 check "settings keep existing deny" "jq -e '.permissions.deny|index(\"Bash(rm -rf:*)\")' '$R/.claude/settings.json' >/dev/null"
 check "settings gain flow deny" "jq -e '.permissions.deny|index(\"Bash(gh pr merge:*)\")' '$R/.claude/settings.json' >/dev/null"
 check "settings deny waiver labels" "jq -e '.permissions.deny|index(\"Bash(gh *allow-test-skip*)\")' '$R/.claude/settings.json' >/dev/null"
+check "settings deny adding the approval label" "jq -e '.permissions.deny|index(\"Bash(gh *--add-label*ai:approved*)\")' '$R/.claude/settings.json' >/dev/null && jq -e '.permissions.deny|index(\"Bash(glab *--label*ai:approved*)\")' '$R/.claude/settings.json' >/dev/null"
+check "rules.md: the ai:approved label is an approval" "grep -qF 'ai:approved\` label**, added by a person' '$R/.ai/flow/rules.md'"
+check "rules.md §11 says who added a label" "grep -q '^| Who added a label, and when' '$R/.ai/flow/rules.md'"
+check "planner: records the approval" "grep -q 'crewlead:approval' '$R/.ai/flow/agents/planner.md'"
+check "planner: removes the approval label on its own" "grep -qF '\`gh issue edit <n> --remove-label ai:approved\`.' '$R/.ai/flow/agents/planner.md'"
+check "reviewer: checks the timeline, not the record" "grep -q 'never the\$' '$R/.ai/flow/agents/reviewer.md' && grep -q 'added a label' '$R/.ai/flow/agents/reviewer.md'"
+check "project.yml names the approval label" "grep -qx '  approved: ai:approved' '$R/.ai/project.yml'"
 check "CLAUDE.md imports AGENTS.md" "grep -qx '@AGENTS.md' '$R/CLAUDE.md'"
 check "warns that steering is still the template" "grep -q 'still has empty templates (product.md' <<<\"\$out\""
 printf '# Product\n\n## Rules\nPROJECT-ONLY-RULE\n```bash\n# not a heading\n```\n' > "$R/.ai/steering/product.md"
@@ -196,6 +203,9 @@ sed -i.bak 's/^  in_review: .*/  in_review: Currently reviewing/' "$R5/.ai/proje
 check "gitlab labels use glab" "grep -q '^glab label create --name ai:ready --color #0E8A16' '$TMP/calls' && ! grep -q '^gh ' '$TMP/calls'"
 check "a board label is never created or changed" "! grep -q 'Currently reviewing\|ai:in-review' '$TMP/calls'"
 check "says which board labels are used" "grep -q 'board labels used as they are: Currently reviewing' <<<\"\$out\""
+sed -i.bak 's/^  approved: .*/  approved: AI: approved/' "$R5/.ai/project.yml"; rm "$R5/.ai/project.yml.bak"
+PATH="$BIN:$PATH" "$FLOW/bin/crewlead" init "$R5" >/dev/null
+check "a renamed approval label is denied under its own name" "jq -e '.permissions.deny|index(\"Bash(glab *--label*AI: approved*)\")' '$R5/.claude/settings.json' >/dev/null"
 : > "$TMP/calls"; PATH="$BIN:$PATH" "$FLOW/bin/crewlead" init --labels "$R" >/dev/null
 check "github labels use gh" "grep -q '^gh label create ai:in-review' '$TMP/calls' && ! grep -q '^glab ' '$TMP/calls'"
 

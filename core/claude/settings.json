@@ -17,6 +17,8 @@
       "Bash(glab *allow-immutable-edit*)",
       "Bash(glab *allow-test-skip*)",
       "Bash(glab *allow-test-removal*)",
+      "Bash(gh *--add-label*ai:approved*)",
+      "Bash(glab *--label*ai:approved*)",
       "Bash(gh *--remove-label*needs-lead-review*)",
       "Bash(glab *--unlabel*needs-lead-review*)"
     ]

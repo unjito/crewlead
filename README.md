@@ -37,7 +37,7 @@ Re-render with `vhs docs/demo/demo.tape`.</sub>
 
 | Team role | In crewlead |
 |---|---|
-| **PO** (what and why, priorities) | **You.** You approve each issue and plan with `/go`, and you merge. |
+| **PO** (what and why, priorities) | **You.** You approve each issue and plan (add the `ai:approved` label, or comment `/go`), and you merge. |
 | **PM / SA** (turn a request into clear work) | **Intake agent** (`/issue-new`): finds the real problem behind a request, checks it against your business rules and existing issues, sizes it, and writes acceptance criteria. At most 3 questions a round; never invents a requirement. |
 | **Tech lead** (how to build it) | **Planner agent**: researches the code and writes the plan on the issue. |
 | **Developer** | **Implementor agent**: builds exactly the plan, with tests, as a draft PR. |
@@ -74,13 +74,13 @@ programs. crewlead is a way of working, not a library.
 
 ```
 You: "I need X" ─► Intake writes the issue ─► you say yes
-                   Planner reads the code, posts a plan ─► you comment /go ¹
+                   Planner reads the code, posts a plan ─► you add ai:approved ¹
                    Implementor builds it with tests ─► draft PR ─► CI + guard
                    Reviewer, fresh context ─► changes? back to the implementor ²
                    ─► you merge
 Any agent stuck ─► ai:blocked + a question on the issue ─► you answer ─► it carries on
 ```
-¹ Small bug fixes from your own team skip the `/go`. ² Two rounds at most, then
+¹ Or comment `/go`. Small bug fixes from your own team skip the approval. ² Two rounds at most, then
 it is your call. Defaults: planner and reviewer Claude, implementor Codex
 (`agents` in `.ai/project.yml`). Large work gets a spec document first, led by you.
 

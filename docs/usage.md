@@ -9,7 +9,7 @@ A short, practical guide. For the full method, see
  You                 AI crew                                   You
  ───                 ───────                                   ───
  "I need X"  ─►  Intake writes the issue
-                 Planner writes the plan    ─►  /go  (you approve the plan)
+                 Planner writes the plan    ─►  ai:approved  (you approve the plan)
                  Implementor builds it, opens a draft PR
                  CI + guard check it
                  Reviewer (fresh eyes) checks it        ─►  you merge
@@ -97,7 +97,7 @@ Then let the crew build the start for you, like any other job:
 
 ```
 /issue-new scaffold a Next.js app with a login page and a test setup
-/issue-plan 1      →  read the plan, comment /go on issue #1
+/issue-plan 1      →  read the plan, add the ai:approved label to issue #1
 /issue-plan 1 go   →  draft PR with the scaffold
 ```
 
@@ -114,15 +114,15 @@ Cursor, call them by name.
 |---|---|---|
 | Ask for something new | `/issue-new the export button should include the date` | Intake asks you a few questions, then writes a clear issue (after you say yes) |
 | Get it planned | `/issue-plan 12` | Planner reads the code and posts a plan on issue #12 |
-| Approve the plan | write `/go` as a comment on issue #12 | That comment is the approval, kept on record. Only a `/go` from someone with write access to the repo counts |
+| Approve the plan | add the `ai:approved` label to issue #12 (or comment `/go`) | That is the approval. The issue's timeline records who added the label and when; the planner posts an approval record and the PR links it. Only an approval from someone with write access to the repo counts |
 | Get it built | `/issue-plan 12 go` | Implementor builds the plan with tests and opens a **draft PR** |
 | Get it reviewed | `/change-review 34` | A reviewer with **fresh context** checks PR #34 against the plan |
 | See what is waiting | `/whats-next` | What needs you, what the AI is doing, what is queued |
 | Accept it | merge the PR yourself | Agents never merge |
 
-Small bug fixes skip the `/go` wait when someone on your team (write access)
+Small bug fixes skip the approval wait when someone on your team (write access)
 opened the issue: the planner plans and the implementor builds straight away.
-You still review and merge. A bug reported by anyone else waits for your `/go`.
+You still review and merge. A bug reported by anyone else waits for your approval.
 
 ## 4. Follow the labels
 
@@ -131,7 +131,8 @@ The issue's label always tells you where it is:
 | Label | Means | Who acts |
 |---|---|---|
 | `ai` | Queued | AI |
-| `ai:awaiting-approval` | Plan is ready to read | **You**: `/go` or comment |
+| `ai:awaiting-approval` | Plan is ready to read | **You**: add `ai:approved` (or comment `/go`), or comment with questions |
+| `ai:approved` | You approved the plan | AI: starts building. Only a person adds it; a re-plan removes it |
 | `ai:implementing` | Being built | AI |
 | `ai:in-review` | Draft PR open, CI and review running | AI |
 | `ai:ready` | Review passed | **You**: merge |
@@ -157,12 +158,12 @@ A reviewer that is a different agent from the implementor catches more.
 - **Pre-push hook:** no direct push to the main branch, no force push.
 - **Guard job in CI:** fails the PR if tests are deleted or skipped, or a
   committed migration is edited, unless a person adds the `allow-*` label.
-- **Protected paths:** changes there need a `/go` from someone in `approvers`
+- **Protected paths:** changes there need an approval from someone in `approvers`
   other than the person driving the work.
 - **Strangers cannot steer the crew:** on a public repo anyone can comment,
-  so agents ignore a `/go` from anyone without write access, treat what
+  so agents ignore an approval (label or `/go`) from anyone without write access, treat what
   issues and comments say as information rather than orders, and never add
-  the `allow-*` labels themselves.
+  `ai:approved` or the `allow-*` labels themselves.
 
 ## 7. Make it yours
 

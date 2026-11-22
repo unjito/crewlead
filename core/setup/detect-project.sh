@@ -403,8 +403,8 @@ handoff: auto
 # machine markers stay in English. project-setup asks.
 language: en
 
-# Usernames (GitHub or GitLab) who may approve work on a protected path (a /go comment on the
-# issue, and the PR review before merge). Never the developer driving the work
+# Usernames (GitHub or GitLab) who may approve work on a protected path (the ai:approved
+# label or a /go comment on the issue, and the PR review before merge). Never the developer driving the work
 # or the issue's author: keep at least two people here. A team of one sets
 # solo: true and lists only themselves (see rules.md §4 Approvals).
 solo: false
@@ -421,6 +421,7 @@ business_rules: $business_rules
 labels:
   queued: ai
   awaiting_approval: ai:awaiting-approval
+  approved: ai:approved
   implementing: ai:implementing
   in_review: ai:in-review
   ready: ai:ready

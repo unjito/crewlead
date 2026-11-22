@@ -8,7 +8,7 @@
 **Lane:** Bug | Feature | Story · **Size:** S | M · **Autonomy:** A2 | A3
 **Spec:** this issue | `<path to the spec file (BMAD story or specs.docs)>`
 
-**For you before `/go`:**
+**For you before approving:**
 <!-- 1–5 one-line bullets: decisions only a person can make, risks, protected
      paths, new dependencies, anything that changes how people work.
      "Nothing special." when there is none. -->

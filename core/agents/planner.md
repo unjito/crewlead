@@ -14,21 +14,28 @@ Input: an issue number, optionally followed by `go`.
 gh issue view <n> --comments
 ```
 
-- If a plan comment already exists and an **approval** for it exists (AGENTS.md
-  §4 Approvals): skip to §5, hand off. Find it with
-  ```bash
-  gh issue view <n> --json author,comments \
-    --jq '{author: .author.login, comments: [.comments[] | {author: .author.login, createdAt, url, body}]}'
-  ```
-  (On GitLab use the notes command in rules.md §11.) It is a comment whose
-  first line is `/go` (on GitLab also `go` or `APPROVED`), created after the latest
-  `<!-- crewlead:plan -->` or `<!-- crewlead:plan-change -->` comment, by someone allowed to approve it: check
-  the author's write access (rules.md §11, *Can a user approve*) and, on a
-  protected path, `approvers`. A `/go` from anyone else does not count: say
-  so in your reply and carry on as if it were not there.
-- Invoked with `go` but no such comment: a chat "go" is not an approval. Ask
-  the person to comment `/go` on the issue (or, on a protected path, to ask one
-  of the `approvers` to), and stop.
+- If a plan comment already exists and an **approval** for it exists (rules.md
+  §4 Approvals): skip to §5, hand off. An approval is either of these, given
+  after the latest `<!-- crewlead:plan -->` or `<!-- crewlead:plan-change -->`
+  comment by someone allowed to approve it:
+  - **the `ai:approved` label.** Who added it, and when, is in the timeline
+    (rules.md §11, *Who added a label*); take the latest time it was added;
+  - **a `/go` comment**: its first line is `/go` (on GitLab also `go` or
+    `APPROVED`). Find it with
+    ```bash
+    gh issue view <n> --json author,comments \
+      --jq '{author: .author.login, comments: [.comments[] | {author: .author.login, createdAt, url, body}]}'
+    ```
+    (On GitLab use the notes command in rules.md §11.)
+
+  Check the approver's write access (rules.md §11, *Can a user approve*) and,
+  on a protected path, `approvers`. An approval from anyone else, or a label
+  added before the latest plan or `plan-change`, does not count: say so in
+  your reply, remove a stale label (`gh issue edit <n> --remove-label
+  ai:approved`, on its own), and carry on as if it were not there.
+- Invoked with `go` but no approval: a chat "go" is not an approval. Ask the
+  person to add the `ai:approved` label or comment `/go` on the issue (or, on
+  a protected path, to ask one of the `approvers` to), and stop.
 - If an implementor reported the plan wrong: read its report, then §6.
 - If the issue has `ai:blocked`: read the stop comment and what people wrote
   after it. Answered by someone with write access → carry on from where the
@@ -67,7 +74,7 @@ Use `.ai/flow/templates/plan.md`, in the project's `language` (AGENTS.md,
 top). Rules:
 
 - **Two readers.** The person reads only the top: **In short** and **For you
-  before `/go`**, enough to approve or not without opening the rest. The
+  before approving**, enough to approve or not without opening the rest. The
   implementor reads everything; the full plan sits in the collapsed
   `<details>` block, as precise as ever.
 
@@ -116,17 +123,21 @@ Decide autonomy (rules.md §4):
 
 - **A3** (bug, size S, no protected path, and the issue's author has write
   access — rules.md §11, *Can a user approve*) → hand off now. A bug written
-  by anyone else is A2: the `/go` is a person accepting a stranger's text.
+  by anyone else is A2: the approval is a person accepting a stranger's text.
 - Otherwise → `gh issue edit <n> --add-label ai:awaiting-approval --remove-label ai`,
-  tell the person what to check in the plan, and stop. Approval is a `/go`
-  comment on the issue.
+  tell the person what to check in the plan, and stop. To approve, the person
+  adds the `ai:approved` label to the issue (or comments `/go`).
 - Protected path touched → also add `needs-lead-review`, and name who may
   approve: the `approvers` in `.ai/project.yml` minus the driver
   (`gh api user --jq .login`) and the issue's author (with `solo: true`, the
   one approver). Nobody left → stop and ask (AGENTS.md §7).
 
-When you hand off, put the approval in the handoff text: its comment URL, or
-`A3 — no approval needed`. The implementor copies it into the PR body.
+When you hand off on an approval, first record it (rules.md §4 Approvals):
+post a comment whose first line is `<!-- crewlead:approval -->`, then one
+line: `Approved by <user> on <time>, by <the ai:approved label | /go>, for
+plan v<k>.` (`v1` when the plan was never changed). Put the approval in the
+handoff text: the record's URL (or the `/go` comment's), or `A3 — no approval
+needed`. The implementor copies it into the PR body.
 
 To hand off:
 
@@ -145,6 +156,8 @@ To hand off:
    `git push` can never target it. If the project needs dependencies
    installed in a new worktree, the plan's first step says how.
 2. Label: `gh issue edit <n> --add-label ai:implementing --remove-label ai,ai:awaiting-approval,ai:blocked`.
+   If the issue has `ai:approved`, remove it in a command of its own:
+   `gh issue edit <n> --remove-label ai:approved`.
 3. Hand off to the implementor — the agent named by `agents.implementor`
    (codex if unset), in its own session in that worktree — as rules.md §2
    Handoffs says. Handoff text (one message):
@@ -178,7 +191,9 @@ code. Never post the whole plan again:
    `Plan v<k>: <what changed> — <why>`, a link to the plan comment and the
    implementor's report, and each changed step as it was (collapsed) and as
    it is now. This is the record, and an approval must come after it.
-3. Gate again (§5): the earlier `/go` does not cover v<k>.
+3. Remove `ai:approved` if the issue has it (`gh issue edit <n> --remove-label
+   ai:approved`, on its own), then gate again (§5): the earlier approval does
+   not cover v<k>.
 
 After two re-plans on the same issue, stop and ask the person (`ai:blocked`).
 

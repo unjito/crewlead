@@ -292,6 +292,17 @@ elif command -v jq >/dev/null; then
 else
   warn "jq not found — merge core/claude/settings.json deny rules into .claude/settings.json by hand"
 fi
+# Only a person adds the approval label: deny it under the project's own name too.
+approved_label="$(config_nested labels approved)"
+if [[ -n "$approved_label" && "$approved_label" != ai:approved ]]; then
+  if command -v jq >/dev/null; then
+    tmp="$(mktemp)"
+    jq --arg l "$approved_label" '.permissions.deny = (((.permissions.deny // []) + ["Bash(gh *--add-label*\($l)*)", "Bash(glab *--label*\($l)*)"]) | unique)' \
+      "$settings" > "$tmp" && mv "$tmp" "$settings"
+  else
+    warn "jq not found — deny adding the '$approved_label' label in .claude/settings.json by hand"
+  fi
+fi
 
 # 6. Issue / change-request templates and the guard, for the project's platform.
 if [[ "$platform" == github ]]; then
