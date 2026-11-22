@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 0.5.6
+- The drift check no longer reports `.git/info/exclude` (or any `.git/…`
+  path) as missing when it runs inside a git worktree, where `.git` is a
+  file (seen on a real project). It asks git where the path really is
+  (`git rev-parse --git-path`).
 - A person can now approve a plan with the **`ai:approved` label** instead of
   a `/go` comment (asked for on a real project, to match a GitLab crew that
   already approves with a label). `/go` still works. rules.md §4: the label
